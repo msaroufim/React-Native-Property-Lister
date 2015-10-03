@@ -18,6 +18,9 @@ var {
     Component
 } = React
 
+//instead of doing this, it's also possible to
+//add stylesheets inline directly where react components
+//are being defined in the render() function
 var styles = StyleSheet.create({
     description: {
         marginBottom: 20,
@@ -85,13 +88,15 @@ function urlForQueryAndPage(key, value, pageNumber) {
     action: 'search_listings',
     page: pageNumber
   };
+
+
+  //add the extra parameter that the user requested
   data[key] = value;
 
   var querystring = Object.keys(data)
     .map(key => key + '=' + encodeURIComponent(data[key]))
     .join('&');
 
-  console.log(querystring);
   return 'http://api.nestoria.co.uk/api?' + querystring;
 
 }
@@ -105,17 +110,42 @@ class SearchPage extends Component {
   this.state = {
     searchString: 'london',
     isLoading: false,
+    message: '',
   };
  }
 
 //waiting for a js private access modifier
 _executeQuery(query) {
-  console.log(query);
+  console.log('in execute query');
   this.setState({isLoading: true});
+
+  //fetch is a web API and a vastly improved XMLHttpRequest
+  fetch(query)
+  //this is why people are excited about promises
+  .then(response => response.json())
+  .then(json => this._handleResponse(json.response))
+  .catch(error =>
+     this.setState({
+      isLoading: false,
+      message: 'Something bad happened ' + error
+   }));
+}
+
+_handleResponse(response) {
+  console.log('in handle response');
+  this.setState({ isLoading: false, message: ''});
+
+  if (response.application_response_code.substr(0, 1) === '1') {
+    console.log('Properties found: ' + response.listings.length);
+  } else {
+    this.setState({message: 'Location not recognized; please try again'});
+  }
 }
 
 onSearchPressed() {
+  console.log('on search pressed');
   var query = urlForQueryAndPage('place_name', this.state.searchString, 1);
+  console.log('calling execute query')
   this._executeQuery(query);
 }
 
@@ -127,7 +157,9 @@ onSearchPressed() {
   }
 
   render() {
+    console.log('calling render');
 
+    //finite state machine kind of behavior showing up here
     var spinner = this.state.isLoading ?
       ( <ActivityIndicatorIOS
           hidden='true'
@@ -170,7 +202,13 @@ onSearchPressed() {
         </TouchableHighlight>
 
         <Image source={require('image!house')} style={styles.image}/>
+
         {spinner}
+
+        <Text style={styles.description}>
+          {this.state.message}
+        </Text>
+
       </View>
           );
     }
