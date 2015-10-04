@@ -7,6 +7,6 @@ Use Xcode to open ```PropertyFinder/ios/PropertyFinder.xcodeproj ``` and hit Com
 
 ## Example usage
 
-[london](./images/README/london.png)
-[properties](./images/README/properties.png)
-[property](./images/README/property.png)
+![london](./images/README/london.png)
+![properties](./images/README/properties.png)
+![property](./images/README/property.png)
