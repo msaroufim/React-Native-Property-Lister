@@ -1,7 +1,7 @@
 'use strict';
 
-var React      = require('react-native');
-
+var React         = require('react-native');
+var SearchResults = require('./SearchResults');
 
 /* destructuring assignment
 extract multiple properties and assign them
@@ -132,11 +132,22 @@ _executeQuery(query) {
 }
 
 _handleResponse(response) {
-  console.log('in handle response');
   this.setState({ isLoading: false, message: ''});
 
+
+
+
+
   if (response.application_response_code.substr(0, 1) === '1') {
-    console.log('Properties found: ' + response.listings.length);
+     //push on navigation stack to make back button remains
+     this.props.navigator.push({
+
+      //passes in listings to search results components and changes the title
+      title: 'Results',
+      component: SearchResults,
+      passProps: {listings: response.listings}
+    });
+
   } else {
     this.setState({message: 'Location not recognized; please try again'});
   }
